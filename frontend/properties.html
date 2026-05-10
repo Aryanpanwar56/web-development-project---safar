@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>City Properties - Safar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body{ background:#f4f4f4; }
+nav{ background:#111; color:white; padding:15px 50px; display:flex; justify-content:space-between; align-items:center; }
+nav h2{ color:orange; }
+nav button{ padding:8px 15px; background:orange; border:none; cursor:pointer; color:white; border-radius:5px; margin-left:10px; }
+.container{ padding:40px 60px; }
+.property-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px; }
+.property-card{ background:white; border-radius:12px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.1); transition:0.3s; }
+.property-card:hover{ transform:translateY(-5px); }
+.property-card img{ width:100%; height:200px; object-fit:cover; }
+.property-content{ padding:15px; }
+.property-content h3{ margin-bottom:8px; }
+.price{ color:green; font-weight:bold; margin:10px 0; }
+.book-btn{ padding:8px 15px; background:orange; border:none; color:white; border-radius:5px; cursor:pointer; }
+.book-btn:hover{ background:darkorange; }
+</style>
+</head>
+<body>
+
+<nav>
+    <h2 id="cityTitle">City Hotels</h2>
+    <div>
+        <button onclick="goBack()">Back</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="property-grid" id="propertyGrid"></div>
+</div>
+
+<script>
+    const currentUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+    if (!currentUser || currentUser.role !== 'user') { window.location.href = 'login.html'; }
+
+    const selectedCity = sessionStorage.getItem('selectedCity') || 'City';
+    document.getElementById('cityTitle').innerText = selectedCity + ' — Hotels';
+
+    const propertiesData = {
+        'Chopta':[
+            {name:'Himalayan Eco Lodge', price:3500, image:'p1.jpg',    owner:'owner1@gmail.com'},
+            {name:'Snow View Resort',    price:4200, image:'p2.jpg',    owner:'owner1@gmail.com'},
+            {name:'Mountain Bliss Stay', price:3900, image:'p3.jpg',    owner:'owner2@gmail.com'}
+        ],
+        'Dehradun':[
+            {name:'Hotel Pacific',    price:4000, image:'p4.jpg',    owner:'owner2@gmail.com'},
+            {name:'Forest View Resort', price:3200, image:'p5.jpg',  owner:'owner1@gmail.com'},
+            {name:'Royal Residency',  price:4500, image:'p6.avif',   owner:'owner2@gmail.com'}
+        ],
+        'Devprayag':[
+            {name:'River View Stay',   price:3000, image:'p7.jpg',  owner:'owner1@gmail.com'},
+            {name:'Sangam Hotel',      price:2600, image:'p8.jpg',  owner:'owner2@gmail.com'},
+            {name:'Mountain Retreat',  price:3800, image:'p9.jpg',  owner:'owner1@gmail.com'}
+        ],
+        'Dhanaulti':[
+            {name:'Eco Park Resort',    price:3400, image:'p11.webp', owner:'owner2@gmail.com'},
+            {name:'Pine Valley Stay',   price:3100, image:'p12.jpg',  owner:'owner1@gmail.com'},
+            {name:'Dhanaulti Heights',  price:3700, image:'p13.jpg',  owner:'owner2@gmail.com'}
+        ],
+        'Dharchula':[
+            {name:'Himalayan Inn',      price:4200, image:'p14.jpg',  owner:'owner1@gmail.com'},
+            {name:'Valley View Lodge',  price:3600, image:'p15.avif', owner:'owner2@gmail.com'},
+            {name:'Snowline Retreat',   price:3900, image:'p1.jpg',   owner:'owner1@gmail.com'}
+        ],
+        'Rishikesh':[
+            {name:'Ganga View Resort',    price:4500, image:'p2.jpg', owner:'owner2@gmail.com'},
+            {name:'Yoga Retreat Ashram',  price:3000, image:'p3.jpg', owner:'owner1@gmail.com'},
+            {name:'Riverstone Hotel',     price:3800, image:'p4.jpg', owner:'owner2@gmail.com'}
+        ],
+        'Harshil':[
+            {name:'Apple Orchard Resort', price:4800, image:'p5.jpg',    owner:'owner1@gmail.com'},
+            {name:'Harshil Camps',        price:3500, image:'p6.avif',   owner:'owner2@gmail.com'},
+            {name:'Valley Crown Hotel',   price:5200, image:'p7.jpg',    owner:'owner1@gmail.com'}
+        ],
+        'Kalpa':[
+            {name:'Kinner Kailash Resort', price:5500, image:'p8.jpg',    owner:'owner2@gmail.com'},
+            {name:'Kalpa Residency',       price:4200, image:'p9.jpg',    owner:'owner1@gmail.com'},
+            {name:'Mountain Paradise',     price:6000, image:'p11.webp',  owner:'owner2@gmail.com'}
+        ],
+        'Mussoorie':[
+            {name:'Hilltop Hotel',         price:5000, image:'p12.jpg', owner:'owner1@gmail.com'},
+            {name:'Mall Road Residency',   price:3800, image:'p13.jpg', owner:'owner2@gmail.com'},
+            {name:'Queen of Hills Resort', price:6200, image:'p14.jpg', owner:'owner1@gmail.com'}
+        ],
+        'Sangla':[
+            {name:'Baspa River Camp',      price:5200, image:'p15.avif', owner:'owner2@gmail.com'},
+            {name:'Sangla Valley Resort',  price:4500, image:'p1.jpg',   owner:'owner1@gmail.com'},
+            {name:'Himalayan Nest',        price:4800, image:'p2.jpg',   owner:'owner2@gmail.com'}
+        ]
+    };
+
+    const grid = document.getElementById('propertyGrid');
+    const props = propertiesData[selectedCity];
+
+    if (props && props.length > 0) {
+        props.forEach(p => {
+            grid.innerHTML += `
+                <div class="property-card">
+                    <img src="${p.image}" alt="${p.name}" onerror="this.src='p1.jpg'">
+                    <div class="property-content">
+                        <h3>${p.name}</h3>
+                        <p class="price">₹${p.price.toLocaleString()} per night</p>
+                        <button class="book-btn"
+                            onclick='bookProperty(${JSON.stringify(p)})'>
+                            Book Now
+                        </button>
+                    </div>
+                </div>`;
+        });
+    } else {
+        grid.innerHTML = '<h3>No properties available for this city.</h3>';
+    }
+
+    // Store selected property in sessionStorage and go to booking page
+    function bookProperty(property) {
+        sessionStorage.setItem('selectedProperty', JSON.stringify(property));
+        window.location.href = 'booking.html';
+    }
+
+    function goBack()  { window.location.href = 'city-landing.html'; }
+    function logout()  { sessionStorage.clear(); window.location.href = 'login.html'; }
+</script>
+</body>
+</html>
